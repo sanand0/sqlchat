@@ -3,6 +3,8 @@ import pandas as pd
 import pyodbc
 import requests
 import sys
+from fastapi import FastAPI
+from fastapi.responses import JSONResponse, FileResponse
 
 
 def get_query(question):
@@ -150,6 +152,28 @@ def run_query(query):
         + password
     )
     return pd.read_sql(query, cnxn)
+
+
+app = FastAPI()
+
+
+@app.get("/query")
+async def query_endpoint(question: str):
+    sql = get_query(question)
+    try:
+        result = run_query(sql)
+        return {"sql": sql, "result": result.to_dict()}
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"detail": str(e), "sql": sql},
+        )
+
+
+# Add a static file route to serve index.html
+@app.get("/", include_in_schema=False)
+async def read_item():
+    return FileResponse("index.html")
 
 
 if __name__ == '__main__':
