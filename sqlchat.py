@@ -4,7 +4,8 @@ import pyodbc
 import requests
 import sys
 from fastapi import FastAPI
-from fastapi.responses import JSONResponse, FileResponse
+from fastapi.responses import FileResponse
+from pydantic import BaseModel
 
 
 def get_query(question):
@@ -157,17 +158,22 @@ def run_query(query):
 app = FastAPI()
 
 
-@app.get("/query")
-async def query_endpoint(question: str):
-    sql = get_query(question)
-    try:
-        result = run_query(sql)
-        return {"sql": sql, "result": result.to_dict()}
-    except Exception as e:
-        return JSONResponse(
-            status_code=500,
-            content={"detail": str(e), "sql": sql},
-        )
+class Question(BaseModel):
+    question: str
+
+
+class SQLQuery(BaseModel):
+    sql: str
+
+
+@app.post("/query")
+async def query_endpoint(item: Question):
+    return {"sql": get_query(item.question)}
+
+
+@app.post("/result")
+async def result_endpoint(item: SQLQuery):
+    return {"result": run_query(item.sql).to_dict(orient="records")}
 
 
 # Add a static file route to serve index.html
