@@ -45,15 +45,15 @@
     </div>
   </nav>
   <div class="container-fluid chatbot-container p-5 w-75">
-    <div class="header p-3 bg-dark text-white">
+    <div class="header p-3 text-white bg-body-tertiary" data-bs-theme="dark">
       SQL Chat box
     </div>
     <div class="conversation bg-body-secondary justify-content-center">
       <div class="defaultText text-center ">
         <h4> How can i help you today?</h4>
       </div>
-      <div id="output"></div>
-
+    <div class="userAskedQs d-flex flex-column"></div>
+    <div id="output"></div>
     </div>
     <div class="">
       <form id="search-form" action="query" class="input-group mb-3 border">
@@ -70,82 +70,7 @@
     integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"
     type="module"></script>
   <script src="https://cdn.jsdelivr.net/npm/@gramex/ui@0.3/dist/dark-theme.js" type="module"></script>
-  <script type="module">
-    import { html, render } from "https://cdn.jsdelivr.net/npm/lit-html@3/lit-html.js";
-
-      const $output = document.querySelector("#output");
-      document.querySelector("#search-form").addEventListener("submit", async (event) => {
-        event.preventDefault();
-        const formData = new FormData(event.target);
-
-        const renderUserMessage = (question) => {
-        const userMsgDiv = html`
-          <div class="user-messages">
-            <div class="user-selected-question">${question}</div>
-          </div>
-        `;
-        render(userMsgDiv, document.querySelector(".conversation"));
-      }
-        document.querySelector('.defaultText').style.display="none"
-        renderUserMessage(formData.get('question'));
-        render(
-          html`
-            <h2 class="h5">Generating SQL...</h2>
-            <div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div>
-          `,
-          $output
-        );
-
-        const sqlResponse = await fetch("query", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ question: formData.get("question") }),
-        });
-        const sqlData = await sqlResponse.json();
-
-        render(
-          html`<h2 class="h5">Running query...</h2>
-            <pre>${sqlData.sql}</pre>
-            <div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div>`,
-          $output
-        );
-
-        const resultResponse = await fetch("result", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(sqlData),
-        });
-        const resultData = await resultResponse.json();
-        const result = resultData.result;
-
-        // result is an array of objects. We'll render it as a table
-        render(
-          html`
-            <h2 class="h5">Ran query...</h2>
-            <pre>${sqlData.sql}</pre>
-            <h2 class="h5">Results</h2>
-            <table class="table">
-              <thead>
-                <tr>
-                  ${Object.keys(result[0]).map((key) => html`<th>${key}</th>`)}
-                </tr>
-              </thead>
-              <tbody>
-                ${result.map(
-                  (row) =>
-                    html`
-                      <tr>
-                        ${Object.values(row).map((value) => html`<td>${value}</td>`)}
-                      </tr>
-                    `
-                )}
-              </tbody>
-            </table>
-          `,
-          $output
-        );
-      });
-    </script>
+  <script src="./js/index.js" type="module"></script>
 </body>
 
 </html>
