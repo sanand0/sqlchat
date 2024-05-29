@@ -1,0 +1,132 @@
+@import "theme/bootstrap5";
+
+.chatbot-container {
+  height: 75vh;
+  max-height: 40rem;
+  padding: 2.5rem;
+  padding-bottom: 0;
+  overflow: hidden;
+  overflow-y: scroll;
+  align-self: flex-end;
+}
+.conversation,
+.Messages_list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.questions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-top: auto;
+  gap: 2px;
+  background: white;
+  width: 50%;
+  margin-bottom: 2em;
+  margin-left: 2em;
+  box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.07);
+}
+
+.user-selected-question {
+  cursor: pointer;
+  padding: 1em;
+  font-size: 16px;
+  width: 100%;
+  font-weight: 500;
+  line-height: 20px;
+  background: linear-gradient(94deg, #4fa7dd 0.16%, #0173b9 94.39%), #fff;
+  color: white;
+  margin-bottom: 1em;
+  display: block;
+  border-radius: 10px;
+  border-bottom-right-radius: 2px;
+}
+
+.user-messages {
+  align-self: flex-end;
+}
+
+.navbar {
+  background-color: #0071bc !important;
+}
+.resultDiv {
+  height: 300px;
+  overflow: scroll;
+}
+.bot-messages {
+  font-size: 14px;
+  padding: 1rem;
+  width: 75%;
+  background: #e5e4e46b;
+  border-radius: 1em;
+  border-bottom-left-radius: 2px;
+}
+.tableDiv {
+  max-height: 200px;
+  overflow: auto;
+}
+.input-container {
+  bottom: 0;
+  position: fixed;
+  width: 90%;
+  padding: 1rem 1rem;
+  border-radius: 5rem;
+  background: #efefef;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.175);
+  left: 50%;
+  transform: translateX(-50%);
+}
+button[type="submit"] {
+  height: 50px;
+  width: 50px;
+}
+div.typingDots {
+  margin: 2px;
+  span {
+    width: 10px;
+    height: 10px;
+    background-color: #4973fe;
+    display: inline-block;
+    margin: 1px;
+    border-radius: 50%;
+    &:nth-child(1) {
+      animation: bounce 1s infinite;
+    }
+    &:nth-child(2) {
+      animation: bounce 1s infinite 0.2s;
+    }
+    &:nth-child(3) {
+      animation: bounce 1s infinite 0.4s;
+    }
+  }
+}
+
+@keyframes bounce {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(8px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+.line {
+  fill: none;
+  stroke: steelblue;
+  stroke-width: 2px;
+}
+
+.bar {
+  fill: steelblue;
+}
+.bar:hover {
+  fill: orange;
+}
+.axis-label {
+  font: 10px sans-serif;
+}
