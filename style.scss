@@ -78,6 +78,9 @@
   left: 50%;
   transform: translateX(-50%);
 }
+.input-container textarea {
+  height: 45px;
+}
 button[type="submit"] {
   height: 50px;
   width: 50px;
@@ -129,4 +132,12 @@ div.typingDots {
 }
 .axis-label {
   font: 10px sans-serif;
+}
+.grid line {
+  stroke: lightgrey;
+  stroke-opacity: 0.7;
+  shape-rendering: crispEdges;
+}
+.grid path {
+  stroke-width: 0;
 }

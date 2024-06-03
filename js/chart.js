@@ -1,12 +1,11 @@
 /* globals d3 */
-import { scrollToBottom } from "./common.js";
-
 export const createChart = (data, container) => {
-  data = data.filter((_, index) => index < data.length - 1);
   if (data.length > 1) columnValidation(data, container);
 };
 
 export const columnValidation = (data, container) => {
+  const id = container.id;
+
   const segregateColumns = (data) => {
     if (data.length === 0) return { categorical: [], numerical: [] };
 
@@ -30,53 +29,44 @@ export const columnValidation = (data, container) => {
   if (categorical.length > 0 && numerical.length > 0) {
     container.insertAdjacentHTML(
       "beforeend",
-      "<p class='py-2 m-0'>Please select one categorical and one numerical column to view a chart</p>",
+      `<div class='chartContainer d-flex align-items-start justify-content-between'>
+      <div class="chartSvg-${id}"><p class='py-2 m-0 h6'>Visual representation</p> </div>
+      <div class='chartOptions-${id}'> <p class='py-2 m-0 h6'>Chart options</p> </div>
+      </div>`,
     );
-    const createRadiobuttons = (columns, category, id) => {
+
+    const createRadioButtons = (columns, category, id) => {
       const categoryHTML = `
-    <div class="${category}-columns">
-      <h5>${category.charAt(0).toUpperCase() + category.slice(1)} Columns</h5>
+    <div class="${category}-columns p-2">
+      <p class="fw-500">${category.charAt(0).toUpperCase() + category.slice(1)} Columns</p>
       ${columns
         .map(
-          (col) => `
+          (col, index) => `
         <div class="form-check form-check-inline">
-          <input class="form-check-input" type="radio" name="flexRadioDefault${category}${id}" value="${col}" id="${category}+${col}">
+          <input class="form-check-input" type="radio" name="flexRadioDefault${category}${id}" value="${col}" id="${category}+${col}" ${index === 0 ? "checked" : ""}>
           <label class="form-check-label" for="${category}+${col}${id}">${col}</label>
         </div>`,
         )
         .join("")}
     </div>
   `;
-
-      container.insertAdjacentHTML("beforeend", categoryHTML);
+      container
+        .querySelector(`.chartOptions-${id}`)
+        .insertAdjacentHTML("beforeend", categoryHTML);
     };
 
-    createRadiobuttons(categorical, "categorical", container.id);
-    createRadiobuttons(numerical, "numerical", container.id);
+    createRadioButtons(categorical, "categorical", id);
+    createRadioButtons(numerical, "numerical", id);
 
-    container.insertAdjacentHTML(
-      "beforeend",
-      `<button class='btn btn-sm btn-primary w-25' id='drawChartBtn-${container.id}' style='display:none'>Draw chart </button>`,
-    );
+    const selectedCheckboxes = [];
+    document
+      .querySelectorAll(".form-check-input:checked")
+      .forEach((checkbox) => {
+        selectedCheckboxes.push(checkbox.id);
+      });
+    drawChart(data, selectedCheckboxes, container);
 
-    const button = container.querySelector(`#drawChartBtn-${container.id}`);
-    const updateButtonVisibility = () => {
-      const checkedRadiobuttons = container.querySelectorAll(
-        "input.form-check-input:checked",
-      );
-      if (checkedRadiobuttons.length === 2) {
-        button.style.display = "block";
-        scrollToBottom();
-      } else {
-        button.style.display = "none";
-      }
-    };
-
-    container.querySelectorAll("input.form-check-input").forEach((checkbox) => {
-      checkbox.addEventListener("change", updateButtonVisibility);
-    });
-
-    button.addEventListener("click", () => {
+    const handleRadioChange = () => {
       drawChart(
         data,
         Array.from(
@@ -84,27 +74,32 @@ export const columnValidation = (data, container) => {
         ).map((el) => el.id),
         container,
       );
-      scrollToBottom();
-    });
+    };
+
+    container
+      .querySelectorAll("input.form-check-input[type='radio']")
+      .forEach((radio) => {
+        radio.addEventListener("change", handleRadioChange);
+      });
   } else {
     container.insertAdjacentHTML(
       "beforeend",
-      "<p>NOTE: Not enough data to create a chart. Please ensure there is at least one categorical and one numerical column.</p>",
+      "<p>NOTE: Not enough data to create a chart.</p>",
     );
   }
 };
 
 const drawChart = (data, cols, container) => {
   container.querySelectorAll("svg").forEach((svg) => svg.remove());
-  const margin = { top: 20, right: 30, bottom: 70, left: 70 },
-    width = 400 - margin.left - margin.right,
-    height = 200 - margin.top - margin.bottom;
+  const margin = { top: 20, right: 30, bottom: 70, left: 40 },
+    width = 500 - margin.left - margin.right,
+    height = 250 - margin.top - margin.bottom;
 
   const xCol = cols.find((col) => col.includes("categorical")).split("+")[1];
   const yCol = cols.find((col) => col.includes("numerical")).split("+")[1];
 
   const svg = d3
-    .select(container)
+    .select(container.querySelector(`.chartSvg-${container.id}`))
     .append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
@@ -146,6 +141,12 @@ const drawChart = (data, cols, container) => {
     //   }
     // }),
   );
+
+  svg
+    .append("g")
+    .attr("class", "grid")
+    .call(d3.axisLeft(y).tickSize(-width).tickFormat(""));
+
   svg
     .selectAll(".bar")
     .data(data)
